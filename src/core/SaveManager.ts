@@ -52,6 +52,10 @@ export class SaveManager {
       // fill any missing stat fields defensively
       d.stats = { ...f.stats, ...d.stats };
       d.settings = { ...f.settings, ...d.settings };
+      // a found phone must never come back: dedupe and drop anything invalid
+      d.foundPhones = [...new Set(d.foundPhones)]
+        .filter((n) => Number.isInteger(n) && n >= 1 && n <= 100);
+      d.achievements = [...new Set(d.achievements)];
       return d;
     } catch {
       return freshSave();

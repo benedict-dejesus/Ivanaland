@@ -230,6 +230,44 @@ export function lamppost(h = 70): Container {
   return c;
 }
 
+/**
+ * A cloth sheet draped over something hidden. Filled in the local ground colour
+ * so it blends into the background, but outlined with a clear border so an
+ * observant player can still spot the shape — fair camouflage, not a cheat.
+ */
+export function sheet(bg: number = PAL.grass, w = 48): Container {
+  const c = new Container();
+  const h = w * 0.72;
+  const border = darken(bg, 0.66);
+  c.addChild(shadow(w * 1.05, w * 0.26, 0.14));
+
+  const cloth = new Graphics();
+  // draped silhouette: humped top, wavy hem along the bottom
+  cloth.moveTo(-w / 2, 0);
+  cloth.quadraticCurveTo(-w / 2, -h * 0.82, -w * 0.16, -h * 0.94);
+  cloth.quadraticCurveTo(0, -h * 1.04, w * 0.18, -h * 0.92);
+  cloth.quadraticCurveTo(w / 2, -h * 0.78, w / 2, 0);
+  // hem: four soft scallops back to the left edge
+  cloth.quadraticCurveTo(w * 0.37, h * 0.11, w * 0.25, 0);
+  cloth.quadraticCurveTo(w * 0.12, h * 0.11, 0, 0);
+  cloth.quadraticCurveTo(-w * 0.12, h * 0.11, -w * 0.25, 0);
+  cloth.quadraticCurveTo(-w * 0.37, h * 0.11, -w / 2, 0);
+  cloth.closePath();
+  cloth.fill(lighten(bg, 0.07));
+  cloth.stroke({ width: 3, color: border, alpha: 0.85, join: 'round' });
+
+  // fabric folds — subtle interior lines that sell it as cloth
+  const folds = new Graphics();
+  folds.moveTo(-w * 0.2, -h * 0.86).quadraticCurveTo(-w * 0.26, -h * 0.4, -w * 0.2, -h * 0.03);
+  folds.moveTo(w * 0.16, -h * 0.84).quadraticCurveTo(w * 0.24, -h * 0.42, w * 0.17, -h * 0.03);
+  folds.stroke({ width: 2, color: border, alpha: 0.32, cap: 'round' });
+  // top highlight so it reads as a rounded object underneath
+  folds.ellipse(-w * 0.06, -h * 0.78, w * 0.16, h * 0.1).fill({ color: 0xffffff, alpha: 0.16 });
+
+  c.addChild(cloth, folds);
+  return c;
+}
+
 export function crate(size = 34, color: number = PAL.wood): Container {
   const c = new Container();
   c.addChild(shadow(size * 1.1, size * 0.3));

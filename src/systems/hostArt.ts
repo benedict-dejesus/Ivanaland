@@ -6,7 +6,31 @@
 import { Container, Graphics } from 'pixi.js';
 import { PAL } from '../data/palette';
 import type { PhoneDef } from '../data/types';
-import { chest, crate, giftBox, pot, suitcase, shadow, lighten } from '../world/props';
+import { chest, crate, giftBox, pot, sheet, suitcase, shadow, lighten } from '../world/props';
+import type { DistrictId } from '../data/types';
+
+/** Ground colour under each district, so a draped sheet blends into it. */
+const GROUND: Record<DistrictId, number> = {
+  studio: PAL.grass,
+  village: PAL.grass,
+  market: 0xe8cdb0,
+  beauty: PAL.grass,
+  pets: PAL.grassLight,
+  terminal: PAL.grassLight,
+  resort: PAL.sand,
+  festival: 0xd9cce8,
+  charity: PAL.grass,
+  island: PAL.jungle,
+};
+
+/** A sheet lifts and tilts away rather than just wobbling. */
+function sheetView(node: Container): HostView {
+  return {
+    node,
+    open: () => { node.rotation = -0.22; node.y = -12; node.alpha = 0.9; },
+    close: () => { node.rotation = 0; node.y = 0; node.alpha = 1; },
+  };
+}
 
 export interface HostView {
   node: Container;
@@ -258,15 +282,21 @@ export function hostViewFor(p: PhoneDef): HostView {
   if (h.includes('hamper') || h.includes('basket')) return wobbler(balloonBasket());
   if (h.includes('purse') || h.includes('bag')) return wobbler(pouch(p.district === 'beauty' ? PAL.berry : PAL.waterDeep));
   if (h.includes('mic case')) { const mc = micCase(); return liddedFrom(mc, -0.9, -8); }
-  if (h.includes('crate') || h.includes('box') || h.includes('drawer') || h.includes('backpack') || h.includes('shelf')) {
-    return wobbler(crate(38, p.district === 'charity' ? 0xd8c9a8 : PAL.wood));
+  // Produce crates stay as crates — they belong in a market/backlot.
+  if (h.includes('crate')) return wobbler(crate(38, PAL.wood));
+  // Everything else that used to be a generic brown box is now a draped sheet
+  // in the local ground colour: it blends in, but its border gives it away.
+  const ground = GROUND[p.district];
+  if (h.includes('box') || h.includes('drawer') || h.includes('backpack') || h.includes('shelf')) {
+    return sheetView(sheet(ground, 50));
   }
-  if (h.includes('case')) return wobbler(crate(34, 0x554a63));
-  if (h.includes('glovebox')) return wobbler(crate(30, PAL.sunDark));
-  if (h.includes('door') || h.includes('cabin') || h.includes('hatch') || h.includes('hull') || h.includes('birdhouse') || h.includes('mouth') || h.includes('seat') || h.includes('stairs')) {
-    return wobbler(crate(36, PAL.woodDark));
+  if (h.includes('case')) return sheetView(sheet(ground, 46));
+  if (h.includes('glovebox')) return sheetView(sheet(ground, 40));
+  if (h.includes('door') || h.includes('cabin') || h.includes('hatch') || h.includes('hull')
+    || h.includes('birdhouse') || h.includes('mouth') || h.includes('seat') || h.includes('stairs')) {
+    return sheetView(sheet(ground, 48));
   }
-  return wobbler(crate(36));
+  return sheetView(sheet(ground, 48));
 }
 
 function withShadow(node: Container, w: number): Container {

@@ -320,7 +320,8 @@ export class PhoneSystem {
     lp.found = true;
     const p = lp.def;
     this.found.add(p.id);
-    this.save.data.foundPhones.push(p.id);
+    // never record the same phone twice — a found id is permanent
+    if (!this.save.data.foundPhones.includes(p.id)) this.save.data.foundPhones.push(p.id);
     this.save.markDirty();
 
     // celebrate — the best moment in the game loop
