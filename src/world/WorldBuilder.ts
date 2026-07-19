@@ -74,6 +74,14 @@ export function buildWorld(
   const root = new Container();
   const R = seeded(20260719);
 
+  // All static background terrain (ocean, land, roads, river, scatter detail)
+  // goes in one container that we bake to a single low-res texture at the end.
+  // Weak GPUs then blit one image per frame instead of re-rendering thousands
+  // of primitives — the difference between 4 fps and 60 fps on laptop iGPUs.
+  const baseLayer = new Container();
+  baseLayer.eventMode = 'none';
+  root.addChild(baseLayer);
+
   /* ================= OCEAN ================= */
   const ocean = new Graphics();
   ocean.rect(-800, -800, WORLD_W + 1600, WORLD_H + 1600).fill(PAL.waterDeep);
@@ -111,7 +119,7 @@ export function buildWorld(
     ocean.roundRect(b.x - 52, b.y - 52, b.w + 104, b.h + 104, b.r + 44)
       .stroke({ width: 5, color: 0xffffff, alpha: 0.18 });
   }
-  root.addChild(ocean, waves);
+  baseLayer.addChild(ocean, waves);
 
   /* ================= LAND ================= */
   const land = new Graphics();
@@ -133,7 +141,7 @@ export function buildWorld(
         .fill({ color: R() < 0.5 ? b.grassHi : b.grassLo, alpha: 0.06 + R() * 0.05 });
     }
   }
-  root.addChild(land);
+  baseLayer.addChild(land);
 
   /* ================= RIVER ================= */
   const riverPts = [
@@ -150,7 +158,7 @@ export function buildWorld(
   strokePath(river, riverPts, 88, PAL.waterShallow);
   strokePath(river, riverPts, 52, PAL.waterDeep, 0.75);
   dashedInto(river, riverPts, 26, 34, 4, 0xffffff, 0.25);
-  root.addChild(river);
+  baseLayer.addChild(river);
 
   /* ================= ROADS ================= */
   const HUB = { x: 2000, y: 2150 };
@@ -180,7 +188,7 @@ export function buildWorld(
   gMain.ellipse(2000, 4940, 430, 305).fill({ color: 0xcfc4e0, alpha: 0.5 });
   gMain.ellipse(2000, 4940, 430, 305).stroke({ width: 8, color: 0xbdb0d4, alpha: 0.5 });
   gDash.ellipse(2000, 4940, 360, 245).stroke({ width: 4, color: 0xffffff, alpha: 0.25 });
-  root.addChild(gOuter, gMain, gDash);
+  baseLayer.addChild(gOuter, gMain, gDash);
 
   // bridges where roads cross the river
   const bridges = new Graphics();
@@ -191,7 +199,7 @@ export function buildWorld(
     bridges.rect(b.x - 66, b.y - 58, 132, 9).fill(PAL.woodDark);
     bridges.rect(b.x - 66, b.y + 49, 132, 9).fill(PAL.woodDark);
   }
-  root.addChild(bridges);
+  baseLayer.addChild(bridges);
 
   /* ================= AMBIENT DETAIL SCATTER ================= */
   const avoid: Seg[] = [];
@@ -254,7 +262,7 @@ export function buildWorld(
   }
   ripples.stroke({ width: 2.5, color: PAL.sandDark, alpha: 0.5 });
   details.addChild(ripples);
-  root.addChild(details);
+  baseLayer.addChild(details);
 
   /* ================= DISTRICTS ================= */
   const districtNodes = new Map<DistrictId, { statics: Container; motion: Container }>();
@@ -323,5 +331,9 @@ export function buildWorld(
     animator.addPatrol('global', cloud, { points: pts, speed: 20 + i * 7, pause: 0, flip: false });
   });
 
+  // NOTE: the base terrain is intentionally NOT cacheAsTexture'd. It's flat-color
+  // vector fills, which weak (fill-rate-bound) GPUs draw faster than they can blit
+  // one world-sized texture every frame. Grouping it in baseLayer just keeps the
+  // scene tidy and lets us mark it non-interactive in one place.
   return { root, districtNodes, motionLayers };
 }

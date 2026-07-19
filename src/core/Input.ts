@@ -45,7 +45,9 @@ export class Input {
   private onDown = (e: PointerEvent): void => {
     e.preventDefault();
     this.fireFirstGesture();
-    this.el.setPointerCapture?.(e.pointerId);
+    // pointer capture keeps move/up firing off-element; it can throw on some
+    // browsers/synthetic events, so it must never break gesture start.
+    try { this.el.setPointerCapture?.(e.pointerId); } catch { /* non-fatal */ }
     this.cam.stopFling();
     this.pointers.set(e.pointerId, {
       id: e.pointerId, x: e.clientX, y: e.clientY,

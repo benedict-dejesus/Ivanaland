@@ -37,7 +37,10 @@ export class Game {
       background: 0x2e86de,
       resizeTo: window,
       antialias: true,
-      resolution: Math.min(window.devicePixelRatio || 1, 2),
+      // cap render resolution at 1.5: full crispness on phones, but avoids the
+      // 4x fill-rate hit of rendering the whole world at 2x on high-DPI laptops
+      // with weak integrated GPUs (a major cause of low-FPS "freezes").
+      resolution: Math.min(window.devicePixelRatio || 1, 1.5),
       autoDensity: true,
     });
     document.getElementById('app')!.appendChild(this.app.canvas);
@@ -89,17 +92,22 @@ export class Game {
     const startZoom = Math.min(0.62, Math.max(0.34, window.innerWidth / 1500));
     this.camera.jumpTo(2000, 2050, startZoom);
 
-    // main loop
+    // main loop — guarded so one bad frame logs and recovers instead of
+    // wedging the render loop (which would look like a hard freeze).
     this.app.ticker.add((ticker) => {
-      const dt = Math.min(0.05, ticker.deltaMS / 1000);
-      this.camera.update(dt);
-      this.animator.tick(dt);
-      this.fx.tick(dt);
-      this.phones.tick(this.animator.elapsed, this.camera.viewRect(160));
-      this.cullTimer += dt;
-      if (this.cullTimer > 0.15) {
-        this.cullTimer = 0;
-        this.cullAndDetect();
+      try {
+        const dt = Math.min(0.05, ticker.deltaMS / 1000);
+        this.camera.update(dt);
+        this.animator.tick(dt);
+        this.fx.tick(dt);
+        this.phones.tick(this.animator.elapsed, this.camera.viewRect(160));
+        this.cullTimer += dt;
+        if (this.cullTimer > 0.15) {
+          this.cullTimer = 0;
+          this.cullAndDetect();
+        }
+      } catch (err) {
+        console.error('IVANALAND frame error (recovered):', err);
       }
     });
 
@@ -112,12 +120,16 @@ export class Game {
   }
 
   private handleTap(sx: number, sy: number): void {
-    const w = this.camera.screenToWorld(sx, sy);
-    this.save.data.stats.taps++;
-    const handled = this.interactions.hit(w.x, w.y, this.camera.zoom);
-    if (!handled) {
-      this.fx.ripple(w.x, w.y);
-      this.audio.ripple();
+    try {
+      const w = this.camera.screenToWorld(sx, sy);
+      this.save.data.stats.taps++;
+      const handled = this.interactions.hit(w.x, w.y, this.camera.zoom);
+      if (!handled) {
+        this.fx.ripple(w.x, w.y);
+        this.audio.ripple();
+      }
+    } catch (err) {
+      console.error('IVANALAND tap error (recovered):', err);
     }
   }
 
