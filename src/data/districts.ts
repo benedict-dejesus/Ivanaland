@@ -22,6 +22,20 @@ export const districtById = new Map<DistrictId, DistrictDef>(
   DISTRICTS.map((d) => [d.id, d]),
 );
 
+/** Ground colour under each district — used to blend sheets and field designs. */
+export const GROUND: Record<DistrictId, number> = {
+  studio: PAL.grass,
+  village: PAL.grass,
+  market: 0xe8cdb0,
+  beauty: PAL.grass,
+  pets: PAL.grassLight,
+  terminal: PAL.grassLight,
+  resort: PAL.sand,
+  festival: 0xd9cce8,
+  charity: PAL.grass,
+  island: PAL.jungle,
+};
+
 /** world point at fractional position inside a district's rect */
 export function dp(id: DistrictId, fx: number, fy: number): { x: number; y: number } {
   const d = districtById.get(id)!;

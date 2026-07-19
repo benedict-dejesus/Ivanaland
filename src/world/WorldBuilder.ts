@@ -9,6 +9,7 @@ import type { GameAudio } from '../core/Audio';
 import type { InteractionSystem } from '../systems/InteractionSystem';
 import type { EventBus } from '../core/events';
 import { dashedInto } from './util';
+import { addAmbience } from './ambience';
 import { jeepney, lighten } from './props';
 
 import { buildStudio } from './districts/studio';
@@ -295,6 +296,8 @@ export function buildWorld(
       patrol: (node, spec) => animator.addPatrol(d.id, node, spec),
     };
     BUILDERS[d.id](ctx);
+    // shared distraction + field-design pass on top of every district
+    addAmbience(ctx);
   }
 
   /* ================= THE IVANA SHUTTLE ================= */

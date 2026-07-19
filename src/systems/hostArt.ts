@@ -7,21 +7,7 @@ import { Container, Graphics } from 'pixi.js';
 import { PAL } from '../data/palette';
 import type { PhoneDef } from '../data/types';
 import { chest, crate, giftBox, pot, sheet, suitcase, shadow, lighten } from '../world/props';
-import type { DistrictId } from '../data/types';
-
-/** Ground colour under each district, so a draped sheet blends into it. */
-const GROUND: Record<DistrictId, number> = {
-  studio: PAL.grass,
-  village: PAL.grass,
-  market: 0xe8cdb0,
-  beauty: PAL.grass,
-  pets: PAL.grassLight,
-  terminal: PAL.grassLight,
-  resort: PAL.sand,
-  festival: 0xd9cce8,
-  charity: PAL.grass,
-  island: PAL.jungle,
-};
+import { GROUND } from '../data/districts';
 
 /** A sheet lifts and tilts away rather than just wobbling. */
 function sheetView(node: Container): HostView {

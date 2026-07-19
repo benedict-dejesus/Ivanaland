@@ -597,6 +597,175 @@ export function crab(size = 18): Container {
   return c;
 }
 
+/* ---------------- Ambient critters & distractions ---------------- */
+
+/** wings are returned so the caller can flutter them */
+export function butterfly(color: number = PAL.coral, size = 13): Container {
+  const c = new Container();
+  const wings = new Container();
+  const g = new Graphics();
+  g.ellipse(-size * 0.34, -size * 0.12, size * 0.34, size * 0.26).fill(color);
+  g.ellipse(size * 0.34, -size * 0.12, size * 0.34, size * 0.26).fill(color);
+  g.ellipse(-size * 0.28, size * 0.2, size * 0.26, size * 0.2).fill(darken(color, 0.85));
+  g.ellipse(size * 0.28, size * 0.2, size * 0.26, size * 0.2).fill(darken(color, 0.85));
+  g.circle(-size * 0.34, -size * 0.14, size * 0.08).fill({ color: 0xffffff, alpha: 0.6 });
+  g.circle(size * 0.34, -size * 0.14, size * 0.08).fill({ color: 0xffffff, alpha: 0.6 });
+  wings.addChild(g);
+  const body = new Graphics();
+  body.roundRect(-size * 0.05, -size * 0.3, size * 0.1, size * 0.6, size * 0.05).fill(PAL.ink);
+  c.addChild(wings, body);
+  (c as Container & { wings?: Container }).wings = wings;
+  return c;
+}
+
+export function dragonfly(size = 16): Container {
+  const c = new Container();
+  const wings = new Container();
+  const w = new Graphics();
+  w.ellipse(-size * 0.4, -size * 0.1, size * 0.42, size * 0.12).fill({ color: 0xbfe9ff, alpha: 0.75 });
+  w.ellipse(size * 0.4, -size * 0.1, size * 0.42, size * 0.12).fill({ color: 0xbfe9ff, alpha: 0.75 });
+  wings.addChild(w);
+  const b = new Graphics();
+  b.roundRect(-size * 0.05, -size * 0.24, size * 0.1, size * 0.72, size * 0.05).fill(PAL.mintDark);
+  b.circle(0, -size * 0.28, size * 0.11).fill(PAL.mint);
+  c.addChild(wings, b);
+  (c as Container & { wings?: Container }).wings = wings;
+  return c;
+}
+
+export function frog(size = 18): Container {
+  const c = new Container();
+  c.addChild(shadow(size * 0.9, size * 0.22));
+  const g = new Graphics();
+  g.ellipse(0, -size * 0.24, size * 0.4, size * 0.26).fill(0x6cc24a);
+  g.circle(-size * 0.18, -size * 0.46, size * 0.13).fill(0x6cc24a);
+  g.circle(size * 0.18, -size * 0.46, size * 0.13).fill(0x6cc24a);
+  g.circle(-size * 0.18, -size * 0.48, size * 0.06).fill(PAL.ink);
+  g.circle(size * 0.18, -size * 0.48, size * 0.06).fill(PAL.ink);
+  g.ellipse(-size * 0.34, -size * 0.06, size * 0.12, size * 0.07).fill(0x58a83c);
+  g.ellipse(size * 0.34, -size * 0.06, size * 0.12, size * 0.07).fill(0x58a83c);
+  c.addChild(g);
+  return c;
+}
+
+/** spinner is returned so the caller can rotate it */
+export function pinwheel(size = 28): Container {
+  const c = new Container();
+  const g = new Graphics();
+  g.roundRect(-size * 0.05, -size * 0.9, size * 0.1, size * 0.9, size * 0.04).fill(PAL.woodDark);
+  const spin = new Graphics();
+  const cols = [PAL.coral, PAL.sun, PAL.mint, PAL.waterShallow];
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
+    spin.moveTo(0, 0);
+    spin.arc(0, 0, size * 0.42, a, a + Math.PI * 0.42);
+    spin.closePath();
+    spin.fill(cols[i]!);
+  }
+  spin.circle(0, 0, size * 0.08).fill(PAL.cream);
+  spin.position.set(0, -size * 0.9);
+  c.addChild(g, spin);
+  (c as Container & { spin?: Container }).spin = spin;
+  return c;
+}
+
+export function beachBall(size = 20): Container {
+  const c = new Container();
+  c.addChild(shadow(size * 0.85, size * 0.2));
+  const g = new Graphics();
+  g.circle(0, -size * 0.5, size * 0.5).fill(PAL.cream);
+  const cols = [PAL.coral, PAL.sun, PAL.waterShallow];
+  for (let i = 0; i < 3; i++) {
+    const a = (i / 3) * Math.PI * 2 - Math.PI / 2;
+    g.moveTo(0, -size * 0.5);
+    g.arc(0, -size * 0.5, size * 0.5, a, a + Math.PI * 0.62);
+    g.closePath();
+    g.fill(cols[i]!);
+  }
+  g.circle(-size * 0.16, -size * 0.66, size * 0.1).fill({ color: 0xffffff, alpha: 0.55 });
+  c.addChild(g);
+  return c;
+}
+
+export function kite(size = 34): Container {
+  const c = new Container();
+  const g = new Graphics();
+  g.moveTo(0, -size * 0.6).lineTo(size * 0.34, 0).lineTo(0, size * 0.5).lineTo(-size * 0.34, 0).closePath().fill(PAL.berry);
+  g.moveTo(0, -size * 0.6).lineTo(0, size * 0.5).stroke({ width: 1.5, color: PAL.cream, alpha: 0.6 });
+  g.moveTo(-size * 0.34, 0).lineTo(size * 0.34, 0).stroke({ width: 1.5, color: PAL.cream, alpha: 0.6 });
+  for (let i = 0; i < 3; i++) {
+    g.moveTo(0, size * 0.5 + i * size * 0.22)
+      .quadraticCurveTo(size * 0.1, size * 0.6 + i * size * 0.22, 0, size * 0.7 + i * size * 0.22)
+      .stroke({ width: 2, color: PAL.sun });
+  }
+  c.addChild(g);
+  return c;
+}
+
+/* ---------------- Field designs (static, baked into cached art) ---------------- */
+
+/** alternating mown bands — reads as a cared-for lawn */
+export function mownStripes(w: number, h: number, base: number, bands = 7): Graphics {
+  const g = new Graphics();
+  const bh = h / bands;
+  for (let i = 0; i < bands; i += 2) {
+    g.rect(-w / 2, -h / 2 + i * bh, w, bh);
+  }
+  g.fill({ color: lighten(base, 0.09), alpha: 0.55 });
+  return g;
+}
+
+/** tidy rows of planted flowers */
+export function flowerBed(w = 130, h = 70, soil = 0xa8794f): Graphics {
+  const g = new Graphics();
+  g.ellipse(0, 0, w / 2, h / 2).fill(soil);
+  g.ellipse(0, 0, w / 2 - 5, h / 2 - 5).fill(lighten(soil, 0.08));
+  const cols = [PAL.coral, PAL.sun, PAL.berry, PAL.cream];
+  let k = 0;
+  for (let ry = -1; ry <= 1; ry++) {
+    for (let rx = -2; rx <= 2; rx++) {
+      const x = rx * (w / 6);
+      const y = ry * (h / 4);
+      if (x * x / ((w / 2 - 10) ** 2) + y * y / ((h / 2 - 8) ** 2) > 1) continue;
+      g.circle(x, y, 5).fill(cols[k++ % cols.length]!);
+      g.circle(x, y, 2).fill(PAL.cream);
+    }
+  }
+  return g;
+}
+
+export function hedgeRow(len = 120, color: number = PAL.grassDark): Graphics {
+  const g = new Graphics();
+  g.roundRect(-len / 2, -20, len, 24, 11).fill(color);
+  const lobes = Math.max(3, Math.round(len / 26));
+  for (let i = 0; i < lobes; i++) {
+    g.circle(-len / 2 + (i + 0.5) * (len / lobes), -22, 12).fill(lighten(color, 0.1));
+  }
+  return g;
+}
+
+/** stepping stones along a short path */
+export function steppingStones(n = 5, gap = 26): Graphics {
+  const g = new Graphics();
+  for (let i = 0; i < n; i++) {
+    g.ellipse(i * gap - ((n - 1) * gap) / 2, (i % 2) * 4, 11, 8).fill({ color: 0xcdc7d6, alpha: 0.9 });
+  }
+  return g;
+}
+
+export function picnicBlanket(w = 70, a: number = PAL.coral): Container {
+  const c = new Container();
+  const g = new Graphics();
+  g.ellipse(0, 0, w / 2, w / 3).fill(a);
+  for (let i = -2; i <= 2; i++) {
+    g.rect(i * (w / 7) - 2, -w / 3, 4, (w / 3) * 2).fill({ color: PAL.cream, alpha: 0.45 });
+    g.rect(-w / 2, i * (w / 9) - 2, w, 4).fill({ color: PAL.cream, alpha: 0.45 });
+  }
+  g.ellipse(0, 0, w / 2, w / 3).stroke({ width: 3, color: lighten(a, 0.15) });
+  c.addChild(g);
+  return c;
+}
+
 /* ---------------- Vehicles ---------------- */
 
 export function jeepney(size = 90): Container {
