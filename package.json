@@ -1,0 +1,21 @@
+{
+  "name": "ivanaland",
+  "version": "1.0.0",
+  "description": "IVANALAND — Help recover the 100 lost iPhones hidden throughout Ivanaland. A hidden-object exploration game by Benedict de Jesus.",
+  "type": "module",
+  "author": "Benedict de Jesus",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pixi.js": "^8.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5"
+  }
+}

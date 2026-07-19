@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(git:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Read(//d/Users/Benedict De Jesus/Documents/Benedict/PERSONAL_PROJECTS/Ivanaland/**)",
+      "Edit(//d/Users/Benedict De Jesus/Documents/Benedict/PERSONAL_PROJECTS/Ivanaland/**)",
+      "Write(//d/Users/Benedict De Jesus/Documents/Benedict/PERSONAL_PROJECTS/Ivanaland/**)"
+    ]
+  }
+}
