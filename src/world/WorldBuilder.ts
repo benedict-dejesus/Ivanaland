@@ -32,7 +32,7 @@ const BUILDERS: Record<DistrictId, (ctx: BuildCtx) => void> = {
 
 export interface BuiltWorld {
   root: Container;
-  districtNodes: Map<DistrictId, { statics: Container; motion: Container }>;
+  districtNodes: Map<DistrictId, { statics: Container; motion: Container; detail: Container }>;
   motionLayers: Map<DistrictId, Container>;
 }
 
@@ -266,7 +266,7 @@ export function buildWorld(
   baseLayer.addChild(details);
 
   /* ================= DISTRICTS ================= */
-  const districtNodes = new Map<DistrictId, { statics: Container; motion: Container }>();
+  const districtNodes = new Map<DistrictId, { statics: Container; motion: Container; detail: Container }>();
   const motionLayers = new Map<DistrictId, Container>();
   const staticsRoot = new Container();
   const motionRoot = new Container();
@@ -275,13 +275,16 @@ export function buildWorld(
   for (const d of DISTRICTS) {
     const statics = new Container();
     const motion = new Container();
+    const detail = new Container();
     staticsRoot.addChild(statics);
     motionRoot.addChild(motion);
-    districtNodes.set(d.id, { statics, motion });
+    // detail sits under motion so district culling applies to it automatically
+    motion.addChild(detail);
+    districtNodes.set(d.id, { statics, motion, detail });
     motionLayers.set(d.id, motion);
 
     const ctx: BuildCtx = {
-      d, statics, motion, animator, fx, audio,
+      d, statics, motion, detail, animator, fx, audio,
       p: (fx2, fy2) => ({ x: d.x + d.w * fx2, y: d.y + d.h * fy2 }),
       delight: (x, y, r, onTap) => {
         interactions.register({

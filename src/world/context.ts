@@ -11,6 +11,12 @@ export interface BuildCtx {
   statics: Container;
   /** live animated/interactive art */
   motion: Container;
+  /**
+   * Small ambient detail (critters, decoy sheets). Same behaviour as `motion`,
+   * but hidden at far zoom where it is too small to read — keeps the world
+   * dense up close without paying for it on the full-map view.
+   */
+  detail: Container;
   animator: Animator;
   fx: FX;
   audio: GameAudio;

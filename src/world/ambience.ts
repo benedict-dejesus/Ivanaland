@@ -49,8 +49,15 @@ function surprise(pick: number): Container {
 }
 
 export function addAmbience(ctx: BuildCtx): void {
-  const { d, statics, motion, anim, delight, fx, audio, p } = ctx;
+  const { d, statics, detail, delight, fx, audio, p } = ctx;
   const R = seeded(seedFor(d.id));
+  // Detail animations live in their own animator group so they can be switched
+  // off entirely when the detail layer is hidden at far zoom. Ticking hidden
+  // nodes would still write transforms every frame and churn Pixi's batching,
+  // which was more expensive than drawing them.
+  const dkey = `${d.id}:detail`;
+  const anim = (node: Container, spec: Parameters<typeof ctx.anim>[1]): void => ctx.animator.add(dkey, node, spec);
+  const patrolD = (node: Container, spec: Parameters<typeof ctx.patrol>[1]): void => ctx.animator.addPatrol(dkey, node, spec);
   const ground = GROUND[d.id];
   const phonePts = PHONES.filter((q) => q.district === d.id).map((q) => ({ x: q.x, y: q.y }));
 
@@ -90,7 +97,7 @@ export function addAmbience(ctx: BuildCtx): void {
   /* ================= DECOY SHEETS (the real distraction) ================= */
 
   let placed = 0;
-  for (let attempt = 0; attempt < 40 && placed < 7; attempt++) {
+  for (let attempt = 0; attempt < 40 && placed < 5; attempt++) {
     const fx1 = 0.1 + R() * 0.8;
     const fy1 = 0.1 + R() * 0.8;
     const pos = p(fx1, fy1);
@@ -102,7 +109,7 @@ export function addAmbience(ctx: BuildCtx): void {
     hidden.visible = false;
     const cloth = sheet(ground, 40 + R() * 12);
     holder.addChild(hidden, cloth);
-    put(motion, holder, pos);
+    put(detail, holder, pos);
 
     let open = false;
     let timer = 0;
@@ -129,13 +136,13 @@ export function addAmbience(ctx: BuildCtx): void {
   /* ================= ANIMATED CRITTERS ================= */
 
   // butterflies drifting on little loops
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     const col = [PAL.coral, PAL.sun, PAL.berry, 0xffffff][i % 4]!;
     const b = butterfly(col, 12 + R() * 4);
-    motion.addChild(b);
+    detail.addChild(b);
     const bx = 0.1 + R() * 0.8;
     const by = 0.1 + R() * 0.8;
-    ctx.patrol(b, {
+    patrolD(b, {
       points: [p(bx, by), p(bx + 0.06, by - 0.05), p(bx + 0.11, by + 0.03), p(bx + 0.03, by + 0.07)],
       speed: 34 + R() * 22,
       pause: 0.5 + R(),
@@ -149,10 +156,10 @@ export function addAmbience(ctx: BuildCtx): void {
   // dragonflies hovering
   for (let i = 0; i < 2; i++) {
     const dfy = dragonfly(15);
-    motion.addChild(dfy);
+    detail.addChild(dfy);
     const dx = 0.1 + R() * 0.8;
     const dy = 0.1 + R() * 0.8;
-    ctx.patrol(dfy, {
+    patrolD(dfy, {
       points: [p(dx, dy), p(dx + 0.08, dy + 0.04), p(dx + 0.02, dy + 0.08)],
       speed: 52 + R() * 26,
       pause: 0.7,
@@ -164,10 +171,10 @@ export function addAmbience(ctx: BuildCtx): void {
   // a small bird hopping about
   for (let i = 0; i < 2; i++) {
     const br = bird(i % 2 ? 0xffffff : PAL.sunDark, 14);
-    motion.addChild(br);
+    detail.addChild(br);
     const rx = 0.1 + R() * 0.8;
     const ry = 0.1 + R() * 0.8;
-    ctx.patrol(br, {
+    patrolD(br, {
       points: [p(rx, ry), p(rx + 0.05, ry + 0.03), p(rx - 0.03, ry + 0.05)],
       speed: 44 + R() * 20,
       pause: 1.4 + R(),
@@ -182,7 +189,7 @@ export function addAmbience(ctx: BuildCtx): void {
   {
     const pw = pinwheel(30);
     const pos = p(0.12 + R() * 0.76, 0.12 + R() * 0.76);
-    put(motion, pw, pos);
+    put(detail, pw, pos);
     const spin = (pw as Container & { spin?: Container }).spin;
     if (spin) anim(spin, { kind: 'spin', speed: 1.1 + R() });
     delight(pos.x, pos.y - 26, 30, (x, y) => { fx.sparkle(x, y, PAL.mint, 8); audio.plink(1.5); });
@@ -192,7 +199,7 @@ export function addAmbience(ctx: BuildCtx): void {
   {
     const k = kite(32);
     const pos = p(0.12 + R() * 0.76, 0.12 + R() * 0.76);
-    put(motion, k, { x: pos.x, y: pos.y - 90 });
+    put(detail, k, { x: pos.x, y: pos.y - 90 });
     anim(k, { kind: 'sway', amp: 0.16, period: 3 + R() });
     delight(pos.x, pos.y - 90, 34, (x, y) => { fx.sparkle(x, y, PAL.berry, 8); audio.plink(1.3); });
   }
@@ -201,7 +208,7 @@ export function addAmbience(ctx: BuildCtx): void {
   {
     const ball = beachBall(20);
     const pos = p(0.12 + R() * 0.76, 0.12 + R() * 0.76);
-    put(motion, ball, pos);
+    put(detail, ball, pos);
     anim(ball, { kind: 'bob', amp: 2, period: 1.6 + R() });
     delight(pos.x, pos.y, 28, (x, y) => { fx.ring(x, y, PAL.coral, 32, 0.45); audio.plink(0.9); });
   }

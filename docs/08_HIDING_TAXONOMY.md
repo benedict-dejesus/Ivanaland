@@ -49,6 +49,13 @@ minute always succeeds.
    district; hints are free and unlimited (no punishment for wanting help).
 5. **No decoys that punish:** tapping a wrong-but-reasonable spot yields delight
    (an interaction) or a gentle ripple — never mockery, never a counter of fails.
+   **Decoy sheets** are deliberate: every district scatters ~5 cloth sheets
+   identical to the ones that hide real phones, each concealing a small
+   surprise (a cat, a duck, a frog, a ball). They exist to make players
+   investigate everything. Because lifting one always rewards a little moment
+   and counts toward the curiosity achievements, a "wrong" guess is never a
+   loss. Decoys are always placed ≥120 world units from any real phone so they
+   can never obscure a genuine target.
 6. **Sequences telegraph:** each correct step gives clear escalating feedback;
    wrong taps during a sequence do nothing negative (progress never resets).
 7. **Containers re-open freely**; revealed states persist ≥ 6 s.

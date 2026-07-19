@@ -54,6 +54,12 @@ special-cases individual phones except discovery-method handlers keyed by type.
 - Animated props stay live (not cached) in a separate district "motion layer".
 - **Culling:** each district container toggles `visible`/`renderable` via its bounds
   vs camera view (with margin). Off-screen animators are paused.
+- **Level of detail:** ambient distraction (decoy sheets, butterflies,
+  dragonflies, birds, pinwheels) lives in a per-district `detail` container and
+  its own animator group (`<district>:detail`). Below zoom 0.45 the container is
+  hidden *and* its animator group is deactivated — writing transforms to
+  off-screen nodes churns Pixi's batching and costs more than drawing them, so
+  both must be switched off together.
 - UI is DOM (HTML/CSS) overlaid on the canvas — free accessibility, crisp text,
   no font atlas cost.
 - `resolution = min(devicePixelRatio, 2)` to cap fill-rate on high-DPI phones.

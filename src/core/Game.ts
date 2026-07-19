@@ -150,12 +150,21 @@ export class Game {
   private cullAndDetect(): void {
     const view = this.camera.viewRect(240);
     const active: string[] = ['global'];
+    // level of detail: ambient critters/decoys are only a few pixels wide when
+    // zoomed out, so hide them there. Keeps the full-map view cheap while the
+    // world stays dense at the zoom levels where players actually hunt.
+    const showDetail = this.camera.zoom >= 0.45;
     for (const d of DISTRICTS) {
       const nodes = this.world.districtNodes.get(d.id)!;
       const vis = d.x < view.x + view.w && d.x + d.w > view.x && d.y < view.y + view.h && d.y + d.h > view.y;
       nodes.statics.visible = vis;
       nodes.motion.visible = vis;
-      if (vis) active.push(d.id);
+      nodes.detail.visible = vis && showDetail;
+      if (vis) {
+        active.push(d.id);
+        // only tick detail animations while they are actually on screen
+        if (showDetail) active.push(`${d.id}:detail`);
+      }
     }
     this.animator.setActive(active);
 
