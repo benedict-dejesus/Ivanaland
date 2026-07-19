@@ -101,6 +101,27 @@ export class Animator {
     for (const k of keys) this.active.add(k);
   }
 
+  /**
+   * Remove every anim/patrol entry whose node is `root` or a descendant of it.
+   * MUST be called before destroying `root`'s subtree — otherwise tick() keeps
+   * touching destroyed nodes and throws, which kills the Pixi ticker (freeze).
+   * Called while the tree is still intact so parent links are walkable.
+   */
+  removeByRoot(root: Container): void {
+    const isUnder = (node: Container): boolean => {
+      let n: Container | null = node;
+      while (n) {
+        if (n === root) return true;
+        n = n.parent as Container | null;
+      }
+      return false;
+    };
+    for (const g of this.groups.values()) {
+      g.anims = g.anims.filter((e) => !isUnder(e.node));
+      g.patrols = g.patrols.filter((e) => !isUnder(e.node));
+    }
+  }
+
   tick(dt: number): void {
     this.elapsed += dt;
     const t = this.elapsed;

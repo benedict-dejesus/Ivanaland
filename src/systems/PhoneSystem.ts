@@ -339,7 +339,10 @@ export class PhoneSystem {
     for (const prefix of ['phone', 'host', 'ghost']) this.interactions.remove(`${prefix}-${p.id}`);
     for (let i = 0; i < 5; i++) this.interactions.remove(`seq-${p.id}-${i}`);
 
-    // swap art for a found badge
+    // swap art for a found badge. CRITICAL: unregister every animated node in
+    // this phone's subtree BEFORE destroying it — otherwise the animator keeps
+    // touching destroyed nodes next frame and throws, freezing the render loop.
+    this.animator.removeByRoot(lp.root);
     lp.root.removeChildren().forEach((c) => c.destroy({ children: true }));
     this.addFoundBadge(lp.root);
 
